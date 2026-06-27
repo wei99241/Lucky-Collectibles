@@ -35,6 +35,8 @@
   .filter-btn:hover{border-color:#2e7d32}
   .filter-btn.active{background:#e94560;border-color:#e94560;color:#fff}
   .grade-filter-btn{padding:6px 14px;border-radius:20px;border:1px solid #a5d6a7;background:#ffffff;color:#2e7d32;font-size:11px;cursor:pointer;transition:.15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+  .sort-select{padding:6px 14px;border-radius:20px;border:1px solid #a5d6a7;background:#ffffff;color:#2e7d32;font-size:11px;cursor:pointer;transition:.15s;white-space:nowrap;outline:none;-webkit-appearance:none;appearance:none}
+  .sort-select:hover{border-color:#2e7d32}
   .grade-filter-btn:hover{border-color:#2e7d32}
   .grade-filter-btn.active{background:#6a3aa0;border-color:#6a3aa0;color:#fff}
   .add-btn{padding:6px 14px;border-radius:20px;border:1px solid #e94560;background:transparent;color:#e94560;font-size:11px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:.15s}
@@ -202,6 +204,12 @@
     <button class="filter-btn" onclick="setFilter('yugioh',this)">Yu-Gi-Oh</button>
     <button class="filter-btn" onclick="setFilter('other',this)">Other</button>
     <button class="grade-filter-btn" id="grade-filter-btn" onclick="openGradePopup()">🏆 <span id="grade-filter-label">Grade</span></button>
+    <select class="sort-select" id="sort-select" onchange="setSortMode(this.value)">
+      <option value="new" id="opt-new">🆕 New to Old</option>
+      <option value="old" id="opt-old">📦 Old to New</option>
+      <option value="price_high" id="opt-price-high">💰 Price High to Low</option>
+      <option value="price_low" id="opt-price-low">💸 Price Low to High</option>
+    </select>
     <button class="add-btn hidden" id="add-card-btn" onclick="openAddModal()">＋ <span id="add-label">Add Card</span></button>
     <button class="lock-btn hidden" id="admin-fav-btn" onclick="openAdminFavModal()">❤️ <span id="admin-fav-label">Favorites</span></button>
     <button class="lock-btn hidden" id="migrate-btn" onclick="migrateImagesToStorage()">🔄 <span>Migrate Photos</span></button>
@@ -445,12 +453,12 @@ const GRADES=[
 ];
 
 const T={
-  en:{tagline:'Premium Trading Card Game',section:'Cards',addLabel:'Add Card',footer:'Contact via Facebook to purchase · Prices in THB',formTitle:'Add Card',editTitle:'Edit Card',save:'Save',cancel:'Cancel',contact:'Contact to Buy',close:'Close',contactSub:'Contact us to purchase this card:',lName:'Card Name',lSeries:'Series',lSet:'Set / Collection',lDate:'Date',lPrice:'Price',lStatus:'Status',lImage:'Card Images (up to 10)',lGrade:'Grading',available:'Available',sold:'Sold',search:'Search cards...',empty:'No cards yet.',adminOn:'Admin ✓',adminOff:'Admin',wrongPw:'Wrong password.',saved:'Saved! ✓',deleted:'Deleted!',imgCount:'images',gradeLabel:'Grade',gradePopupTitle:'Filter by Grade',showAllGrades:'Show All Grades',accountLabel:'Account',loginBtn:'Login',signupBtn:'Sign Up',myFavorites:'My Favorites',noFavorites:'No favorites yet.',logoutBtn:'Log Out',loginSuccess:'Logged in! ✓',signupSuccess:'Account created! ✓',authError:'Something went wrong.',favAdded:'Added to favorites ❤️',favRemoved:'Removed from favorites',loginRequired:'Please login to save favorites',favoritesOverview:'Favorites Overview',byCard:'By Card',byUser:'By User',noFavoritesYet:'No favorites yet.',usernameLabel:'Username',filtersLabel:'Filters'},
-  lo:{tagline:'ເກມການ໌ດສະສົມລະດັບສູງ',section:'ການ໌ດ',addLabel:'ເພີ່ມການ໌ດ',footer:'ຕິດຕໍ່ຜ່ານ Facebook ເພື່ອຊື້ · ລາຄາເປັນ THB',formTitle:'ເພີ່ມການ໌ດ',editTitle:'ແກ້ໄຂການ໌ດ',save:'ບັນທຶກ',cancel:'ຍົກເລີກ',contact:'ຕິດຕໍ່ຊື້',close:'ປິດ',contactSub:'ຕິດຕໍ່ເພື່ອຊື້ການ໌ດນີ້:',lName:'ຊື່ການ໌ດ',lSeries:'ຊີຣີ',lSet:'ຊຸດ',lDate:'ວັນທີ',lPrice:'ລາຄາ',lStatus:'ສະຖານະ',lImage:'ຮູບການ໌ດ (ສູງສຸດ 10)',lGrade:'ການຈັດອັນດັບ',available:'ມີຂາຍ',sold:'ຂາຍແລ້ວ',search:'ຄົ້ນຫາ...',empty:'ບໍ່ມີການ໌ດ.',adminOn:'Admin ✓',adminOff:'Admin',wrongPw:'ລະຫັດຜ່ານຜິດ.',saved:'ບັນທຶກແລ້ວ! ✓',deleted:'ລຶບແລ້ວ!',imgCount:'ຮູບ',gradeLabel:'ອັນດັບ',gradePopupTitle:'ກັ່ນຕອງຕາມອັນດັບ',showAllGrades:'ສະແດງທຸກອັນດັບ',accountLabel:'ບັນຊີ',loginBtn:'ເຂົ້າສູ່ລະບົບ',signupBtn:'ສ້າງບັນຊີ',myFavorites:'ລາຍການທີ່ມັກ',noFavorites:'ຍັງບໍ່ມີລາຍການທີ່ມັກ.',logoutBtn:'ອອກຈາກລະບົບ',loginSuccess:'ເຂົ້າສູ່ລະບົບແລ້ວ! ✓',signupSuccess:'ສ້າງບັນຊີແລ້ວ! ✓',authError:'ມີຂໍ້ຜິດພາດ.',favAdded:'ເພີ່ມໃນລາຍການທີ່ມັກ ❤️',favRemoved:'ລຶບອອກຈາກລາຍການທີ່ມັກ',loginRequired:'ກະລຸນາເຂົ້າສູ່ລະບົບເພື່ອບັນທຶກ',favoritesOverview:'ພາບລວມລາຍການທີ່ມັກ',byCard:'ຕາມການ໌ດ',byUser:'ຕາມຜູ້ໃຊ້',noFavoritesYet:'ຍັງບໍ່ມີລາຍການທີ່ມັກ.',usernameLabel:'ຊື່ຜູ້ໃຊ້',filtersLabel:'ກັ່ນຕອງ'},
-  th:{tagline:'เกมการ์ดสะสมระดับพรีเมียม',section:'การ์ด',addLabel:'เพิ่มการ์ด',footer:'ติดต่อผ่าน Facebook เพื่อซื้อ · ราคาเป็น THB',formTitle:'เพิ่มการ์ด',editTitle:'แก้ไขการ์ด',save:'บันทึก',cancel:'ยกเลิก',contact:'ติดต่อซื้อ',close:'ปิด',contactSub:'ติดต่อเราเพื่อซื้อการ์ดใบนี้:',lName:'ชื่อการ์ด',lSeries:'ซีรีส์',lSet:'ชุด',lDate:'วันที่',lPrice:'ราคา',lStatus:'สถานะ',lImage:'รูปการ์ด (สูงสุด 10)',lGrade:'การจัดเกรด',available:'มีจำหน่าย',sold:'ขายแล้ว',search:'ค้นหา...',empty:'ยังไม่มีการ์ด',adminOn:'Admin ✓',adminOff:'Admin',wrongPw:'รหัสผ่านไม่ถูกต้อง',saved:'บันทึกแล้ว! ✓',deleted:'ลบแล้ว!',imgCount:'รูป',gradeLabel:'เกรด',gradePopupTitle:'กรองตามเกรด',showAllGrades:'แสดงทุกเกรด',accountLabel:'บัญชี',loginBtn:'เข้าสู่ระบบ',signupBtn:'สมัครสมาชิก',myFavorites:'รายการที่ชอบ',noFavorites:'ยังไม่มีรายการที่ชอบ',logoutBtn:'ออกจากระบบ',loginSuccess:'เข้าสู่ระบบแล้ว! ✓',signupSuccess:'สร้างบัญชีแล้ว! ✓',authError:'เกิดข้อผิดพลาด',favAdded:'เพิ่มในรายการที่ชอบ ❤️',favRemoved:'ลบออกจากรายการที่ชอบ',loginRequired:'กรุณาเข้าสู่ระบบเพื่อบันทึก',favoritesOverview:'ภาพรวมรายการที่ชอบ',byCard:'ตามการ์ด',byUser:'ตามผู้ใช้',noFavoritesYet:'ยังไม่มีรายการที่ชอบ',usernameLabel:'ชื่อผู้ใช้',filtersLabel:'ตัวกรอง'}
+  en:{tagline:'Premium Trading Card Game',section:'Cards',addLabel:'Add Card',footer:'Contact via Facebook to purchase · Prices in THB',formTitle:'Add Card',editTitle:'Edit Card',save:'Save',cancel:'Cancel',contact:'Contact to Buy',close:'Close',contactSub:'Contact us to purchase this card:',lName:'Card Name',lSeries:'Series',lSet:'Set / Collection',lDate:'Date',lPrice:'Price',lStatus:'Status',lImage:'Card Images (up to 10)',lGrade:'Grading',available:'Available',sold:'Sold',search:'Search cards...',empty:'No cards yet.',adminOn:'Admin ✓',adminOff:'Admin',wrongPw:'Wrong password.',saved:'Saved! ✓',deleted:'Deleted!',imgCount:'images',gradeLabel:'Grade',gradePopupTitle:'Filter by Grade',showAllGrades:'Show All Grades',accountLabel:'Account',loginBtn:'Login',signupBtn:'Sign Up',myFavorites:'My Favorites',noFavorites:'No favorites yet.',logoutBtn:'Log Out',loginSuccess:'Logged in! ✓',signupSuccess:'Account created! ✓',authError:'Something went wrong.',favAdded:'Added to favorites ❤️',favRemoved:'Removed from favorites',loginRequired:'Please login to save favorites',favoritesOverview:'Favorites Overview',byCard:'By Card',byUser:'By User',noFavoritesYet:'No favorites yet.',usernameLabel:'Username',filtersLabel:'Filters',sortNew:'New to Old',sortOld:'Old to New',sortPriceHigh:'Price High to Low',sortPriceLow:'Price Low to High'},
+  lo:{tagline:'ເກມການ໌ດສະສົມລະດັບສູງ',section:'ການ໌ດ',addLabel:'ເພີ່ມການ໌ດ',footer:'ຕິດຕໍ່ຜ່ານ Facebook ເພື່ອຊື້ · ລາຄາເປັນ THB',formTitle:'ເພີ່ມການ໌ດ',editTitle:'ແກ້ໄຂການ໌ດ',save:'ບັນທຶກ',cancel:'ຍົກເລີກ',contact:'ຕິດຕໍ່ຊື້',close:'ປິດ',contactSub:'ຕິດຕໍ່ເພື່ອຊື້ການ໌ດນີ້:',lName:'ຊື່ການ໌ດ',lSeries:'ຊີຣີ',lSet:'ຊຸດ',lDate:'ວັນທີ',lPrice:'ລາຄາ',lStatus:'ສະຖານະ',lImage:'ຮູບການ໌ດ (ສູງສຸດ 10)',lGrade:'ການຈັດອັນດັບ',available:'ມີຂາຍ',sold:'ຂາຍແລ້ວ',search:'ຄົ້ນຫາ...',empty:'ບໍ່ມີການ໌ດ.',adminOn:'Admin ✓',adminOff:'Admin',wrongPw:'ລະຫັດຜ່ານຜິດ.',saved:'ບັນທຶກແລ້ວ! ✓',deleted:'ລຶບແລ້ວ!',imgCount:'ຮູບ',gradeLabel:'ອັນດັບ',gradePopupTitle:'ກັ່ນຕອງຕາມອັນດັບ',showAllGrades:'ສະແດງທຸກອັນດັບ',accountLabel:'ບັນຊີ',loginBtn:'ເຂົ້າສູ່ລະບົບ',signupBtn:'ສ້າງບັນຊີ',myFavorites:'ລາຍການທີ່ມັກ',noFavorites:'ຍັງບໍ່ມີລາຍການທີ່ມັກ.',logoutBtn:'ອອກຈາກລະບົບ',loginSuccess:'ເຂົ້າສູ່ລະບົບແລ້ວ! ✓',signupSuccess:'ສ້າງບັນຊີແລ້ວ! ✓',authError:'ມີຂໍ້ຜິດພາດ.',favAdded:'ເພີ່ມໃນລາຍການທີ່ມັກ ❤️',favRemoved:'ລຶບອອກຈາກລາຍການທີ່ມັກ',loginRequired:'ກະລຸນາເຂົ້າສູ່ລະບົບເພື່ອບັນທຶກ',favoritesOverview:'ພາບລວມລາຍການທີ່ມັກ',byCard:'ຕາມການ໌ດ',byUser:'ຕາມຜູ້ໃຊ້',noFavoritesYet:'ຍັງບໍ່ມີລາຍການທີ່ມັກ.',usernameLabel:'ຊື່ຜູ້ໃຊ້',filtersLabel:'ກັ່ນຕອງ',sortNew:'ໃໝ່ໄປເກົ່າ',sortOld:'ເກົ່າໄປໃໝ່',sortPriceHigh:'ລາຄາ ສູງ-ຕ່ຳ',sortPriceLow:'ລາຄາ ຕ່ຳ-ສູງ'},
+  th:{tagline:'เกมการ์ดสะสมระดับพรีเมียม',section:'การ์ด',addLabel:'เพิ่มการ์ด',footer:'ติดต่อผ่าน Facebook เพื่อซื้อ · ราคาเป็น THB',formTitle:'เพิ่มการ์ด',editTitle:'แก้ไขการ์ด',save:'บันทึก',cancel:'ยกเลิก',contact:'ติดต่อซื้อ',close:'ปิด',contactSub:'ติดต่อเราเพื่อซื้อการ์ดใบนี้:',lName:'ชื่อการ์ด',lSeries:'ซีรีส์',lSet:'ชุด',lDate:'วันที่',lPrice:'ราคา',lStatus:'สถานะ',lImage:'รูปการ์ด (สูงสุด 10)',lGrade:'การจัดเกรด',available:'มีจำหน่าย',sold:'ขายแล้ว',search:'ค้นหา...',empty:'ยังไม่มีการ์ด',adminOn:'Admin ✓',adminOff:'Admin',wrongPw:'รหัสผ่านไม่ถูกต้อง',saved:'บันทึกแล้ว! ✓',deleted:'ลบแล้ว!',imgCount:'รูป',gradeLabel:'เกรด',gradePopupTitle:'กรองตามเกรด',showAllGrades:'แสดงทุกเกรด',accountLabel:'บัญชี',loginBtn:'เข้าสู่ระบบ',signupBtn:'สมัครสมาชิก',myFavorites:'รายการที่ชอบ',noFavorites:'ยังไม่มีรายการที่ชอบ',logoutBtn:'ออกจากระบบ',loginSuccess:'เข้าสู่ระบบแล้ว! ✓',signupSuccess:'สร้างบัญชีแล้ว! ✓',authError:'เกิดข้อผิดพลาด',favAdded:'เพิ่มในรายการที่ชอบ ❤️',favRemoved:'ลบออกจากรายการที่ชอบ',loginRequired:'กรุณาเข้าสู่ระบบเพื่อบันทึก',favoritesOverview:'ภาพรวมรายการที่ชอบ',byCard:'ตามการ์ด',byUser:'ตามผู้ใช้',noFavoritesYet:'ยังไม่มีรายการที่ชอบ',usernameLabel:'ชื่อผู้ใช้',filtersLabel:'ตัวกรอง',sortNew:'ใหม่ไปเก่า',sortOld:'เก่าไปใหม่',sortPriceHigh:'ราคา สูง-ต่ำ',sortPriceLow:'ราคา ต่ำ-สูง'}
 };
 
-let lang='en',filter='all',gradeFilter=null,isAdmin=false,editId=null,cards=[];
+let lang='en',filter='all',gradeFilter=null,isAdmin=false,editId=null,cards=[],sortMode='new';
 let imgList=[];
 let lbImages=[],lbIndex=0,lbScale=1,lbDrag={active:false,startX:0,startY:0,curTx:0,curTy:0};
 window._slideIdx={};
@@ -913,6 +921,10 @@ function applyLang(){
   document.getElementById('grade-filter-label').textContent=gradeFilter?gradeLabel(gradeFilter):t('gradeLabel');
   document.getElementById('admin-fav-label').textContent=t('myFavorites');
   document.getElementById('filter-toggle-label').textContent=t('filtersLabel');
+  document.getElementById('opt-new').textContent='🆕 '+t('sortNew');
+  document.getElementById('opt-old').textContent='📦 '+t('sortOld');
+  document.getElementById('opt-price-high').textContent='💰 '+t('sortPriceHigh');
+  document.getElementById('opt-price-low').textContent='💸 '+t('sortPriceLow');
   updateAccountUI();
 }
 function toggleFilterPanel(){
@@ -922,6 +934,7 @@ function toggleFilterPanel(){
   btn.classList.toggle('open');
 }
 function setFilter(f,btn){filter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderCards();}
+function setSortMode(v){sortMode=v;renderCards();}
 
 function seriesBadge(s){
   const m={pokemon:'badge-pokemon',onepiece:'badge-onepiece',yugioh:'badge-yugioh',other:'badge-other'};
@@ -966,6 +979,13 @@ function renderCards(){
     if(gradeFilter&&c.grade!==gradeFilter)return false;
     if(q&&!(c.name||'').toLowerCase().includes(q)&&!(c.set_name||'').toLowerCase().includes(q))return false;
     return true;
+  });
+  list.sort((a,b)=>{
+    if(sortMode==='new')return (b.sort_order||0)-(a.sort_order||0);
+    if(sortMode==='old')return (a.sort_order||0)-(b.sort_order||0);
+    if(sortMode==='price_high')return (b.thb||0)-(a.thb||0);
+    if(sortMode==='price_low')return (a.thb||0)-(b.thb||0);
+    return 0;
   });
   const g=document.getElementById('card-grid');
   if(!list.length){g.innerHTML=`<div class="empty">${t('empty')}</div>`;return;}
@@ -1115,7 +1135,7 @@ Object.assign(window,{
   closeFormModal,openContact,closeContactModal,toggleStatus,cardSlide,cardImgClick,
   handleMultiImageUpload,removeImgSlot,closeLightbox,lbZoomIn,lbZoomOut,lbReset,lbPrev,lbNext,
   setAuthTab,submitAuth,logoutUser,openAccountModal,closeAccountModal,toggleFavorite,
-  setAdminFavView,openAdminFavModal,closeAdminFavModal,goToCard,renderCards,toggleFilterPanel,migrateImagesToStorage
+  setAdminFavView,openAdminFavModal,closeAdminFavModal,goToCard,renderCards,toggleFilterPanel,migrateImagesToStorage,setSortMode
 });
 </script>
 </body>
